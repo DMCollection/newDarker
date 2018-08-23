@@ -93,15 +93,18 @@ export default {
   display: flex;
   flex-direction: column;
 }
+.systemNoticeBox a{
+  text-decoration: none;
+}
 .systemNoticeTitle {
   margin: 10px auto;
   color: wheat;
   background: rgb(53, 50, 52);
   /*border: 1px solid rgba(255, 255, 255, 0.2);*/
   height: 40px;
-  width: 95%;
+  width: 91%;
   line-height: 40px;
-  border-radius: 8px;
+  border-radius: 3px;
   text-align: left;
 }
 .systemNoticeInBox {
@@ -131,7 +134,7 @@ export default {
 }
 .systemTitle {
   margin: auto 10px;
-  color: aquamarine;
+  color: #5ec3a1;
 }
 .systemTime {
   margin: auto 10px;
