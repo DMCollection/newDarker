@@ -2,7 +2,7 @@
   <div class="replyBox" :style="mode>0?'width:820px;':''">
     <div class="replyInfoBox">
       <img :src="avatar!=''?avatar:'../../../static/img/noAvatar.jpg'">
-      <div class="replyLoginTip" v-if="!isLogin">
+      <div :class="mode>0?'replyLoginTip2':'replyLoginTip'" v-if="!isLogin">
         <div class="replyLoginTipInBox">
           <p class="loginTipText loginTipText1">请先 </p>
           <p class="replyLoginBtn" @click="loginBoxShow=true">登陆</p>
@@ -43,13 +43,13 @@ export default {
   },
   data() {
     return {
-      avatar: localStorage.getItem("face")?localStorage.getItem("face"):'',
+      avatar: localStorage.getItem("face") ? localStorage.getItem("face") : "",
       isLogin: localStorage.getItem("USER_ID") ? true : false,
       content: "",
       sendBtnText: "发表评论",
       sendingFlag: false,
       show_emoji_box: false,
-      loginBoxShow:false
+      loginBoxShow: false
     };
   },
   computed: {
@@ -99,14 +99,25 @@ export default {
           type: this.type,
           content: this.content
         });
+        console.log("回复结果", postRes);
         let rd = postRes.data;
         if (rd.code === 0) {
           this.$emit("onAddRootReply", rd.data.rpid);
           this.content = "";
           this.sendingFlag = false;
           this.sendBtnText = "发表评论";
+          this.$message({
+            message: "发送评论成功",
+            type: "success"
+          });
         } else {
+          this.sendingFlag = false;
+          this.sendBtnText = "发表评论";
           console.log("发送评论失败");
+          this.$message({
+            message: "发送评论失败: " + rd.msg,
+            type: "error"
+          });
         }
         //不可直接修改props数据，会出错
         //（调用父组件的refresh函数时，会更改父组件data，同时会重新渲染父组件，然后父组件会重新传值到props，导致冲突）
@@ -127,6 +138,7 @@ export default {
           root: this.parentRpid,
           tuid: this.replyInfo.user.uid
         });
+        console.log("回复结果", postRes);
         let rd = postRes.data;
         if (rd.code === 0) {
           if (this.top) {
@@ -135,14 +147,25 @@ export default {
           } else {
             this.$emit("onAddSubReply", rd.data.rpid);
           }
-
           this.content = "";
           this.sendingFlag = false;
           this.sendBtnText = "发表评论";
+          this.$message({
+            message: "发送评论成功",
+            type: "success"
+          });
         } else {
+          this.sendingFlag = false;
+          this.sendBtnText = "发表评论";
           console.log("发送子评论失败");
+          this.$message({
+            message: "发送评论失败: " + rd.msg,
+            type: "error"
+          });
         }
       }
+      this.sendBtnText = "发表评论";
+      this.sendingFlag = false;
     },
     selectedEmoji(emoji) {
       this.show_emoji_box = false;
@@ -189,15 +212,7 @@ export default {
   padding: 10px 10px 10px 10px;
   border: 1px solid gray;
   transition: border 0.2s;
-<<<<<<< HEAD
-<<<<<<< HEAD
   background: rgba(27, 27, 33, 0.719);
-=======
-  background: rgb(27, 27, 33);
->>>>>>> 1b9fcde01724bf00117f54a9a4d46e49b36b7a3b
-=======
-  background: rgb(27, 27, 33);
->>>>>>> 25f8d4678dab7ca3da980afbd926b06f8b6931a9
   outline: none;
   color: #c5c8c6;
 }
@@ -264,33 +279,47 @@ export default {
   line-height: 24px;
   margin: auto auto;
 }
-.replyLoginTip{
+.replyLoginTip {
   position: absolute;
   background: rgba(128, 128, 128, 0.671);
   width: 720px;
-  height: 80px;
-  left: 75px;
+  height: 70px;
+  top: 2px;
+  left: 77px;
   border-radius: 5px;
   display: flex;
   flex-direction: row;
   text-align: center;
   font-size: 12px;
 }
-.replyLoginTipInBox{
+.replyLoginTip2 {
+  position: absolute;
+  background: rgba(128, 128, 128, 0.671);
+  width: 651px;
+  height: 70px;
+  top: 2px;
+  left: 72px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  font-size: 12px;
+}
+.replyLoginTipInBox {
   display: flex;
   flex-direction: row;
   margin: auto auto;
 }
-.loginTipText{
+.loginTipText {
   line-height: 20px;
   height: 20px;
   margin: auto 0;
   color: rgb(61, 61, 61);
 }
-.loginTipText1{
+.loginTipText1 {
   margin-right: 5px;
 }
-.replyLoginBtn{
+.replyLoginBtn {
   background: rgb(0, 164, 240);
   margin: auto 0;
   line-height: 20px;
@@ -300,7 +329,7 @@ export default {
   padding: 2px 5px 2px 5px;
   border-radius: 3px;
   cursor: pointer;
-  transition: all .2s;
+  transition: all 0.2s;
   margin-right: 5px;
 }
 .replyLoginBtn:hover {
@@ -309,15 +338,16 @@ export default {
 .replyLoginBtn:active {
   background: rgb(0, 174, 255);
 }
-.loginNowBox{
+.loginNowBox {
   position: fixed;
   z-index: 1000;
   top: 60px;
   left: 0;
   opacity: 1;
 }
-.loginNowBoxTran-enter-active, .loginNowBoxTran-leave-active {
-  transition: opacity .5s;
+.loginNowBoxTran-enter-active,
+.loginNowBoxTran-leave-active {
+  transition: opacity 0.5s;
 }
 .loginNowBoxTran-enter, .loginNowBoxTran-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;

@@ -1,30 +1,48 @@
 <template>
-    <div class="searchResultPage">
-        <div class="searchResultBgInBox"></div>
-        <div class="searchResultBgBox"><img :src="bgUrl" class='searchResultBgImg'></div>
-        <div class="searchResultBox">
-          <h1 style="color: #1b84ec" v-show="bangumis === ''">什么都没有找到</h1>
-            <div v-for="(item,i) in bangumis" v-if="index>i" :class="['searchResultItem',{'run-animation2':item.bangumiId==showId[i]}]" @mouseover="changeBgUrl(item.thumb)" :key="item.bangumiId">
-                <img :src="item.thumb?item.thumb:'../../../static/img/1.jpg'" @click="goBangumiDetail(item)">
-                <div class="bangumiName" v-if="item.bangumiName.length<='ElderDriverBroken♂Man1'.length"><p>{{item.bangumiName}}</p></div>
-                <marquee v-else behavior="alternate" scrollamount="6">{{item.bangumiName}}</marquee>
-                <p class="bangumiEpInfo">集数：{{item.episodeTotal}}</p>
-            </div>
-        </div>
-                    <div v-if="bangumis" class="page-container">
-              <el-pagination v-show="page.totalSize>10" @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                             :current-page.sync="page.pageNumber"
-                             :page-sizes="[10,20,30,40,50]" :page-size="page.pageSize"
-                             layout="total, sizes, prev, pager, next, jumper" :total="page.totalSize">
-              </el-pagination>
-            </div>
+  <div class="searchResultPage">
+    <div class="searchResultBg">
+      <div class="searchResultBgInBox"></div>
+      <div class="searchResultBgBox"><img :src="bgUrl" class='searchResultBgImg'></div>
+    </div>
+    <transition name="submitMvBoxTran">
+      <div class="submitMovieBox" v-if="showSubmitBox">
+        <submit-movie
+          :show="showSubmitBox"
+          @closeBox="closeSubmitMvBox"
+          @updateMvList="reloadMvInfo"
+          class="submitMovieInBox">
+        </submit-movie>
+      </div>
+    </transition>
+    <div class="searchResultBox" :style="resultStyle">
+      <h1 style="color: #1b84ec" v-show="bangumis === ''">什么都没有找到</h1>
+      <a @click="showSubmitBox = true" class="sr-submit-link" v-show="bangumis === ''">点此提交番剧信息</a>
+      <div v-for="(item,i) in bangumis" v-if="index>i" :class="['searchResultItem',{'run-animation2':item.bangumiId==showId[i]}]" @mouseover="changeBgUrl(item.thumb)" @click="goBangumiDetail(item)" :key="item.bangumiId">
+           <img :src="item.thumb?item.thumb:'../../../static/img/1.jpg'">
+          <div class="bangumiName" v-if="item.bangumiName.length<='ElderDriverBroken♂Man1'.length"><p>{{item.bangumiName}}</p></div>
+          <marquee v-else behavior="alternate" scrollamount="6">{{item.bangumiName}}</marquee>
+          <p class="bangumiEpInfo">集数：{{item.episodeTotal}}</p>
+      </div>
+    </div>
+    <div v-if="bangumis" class="page-container">
+      <el-pagination v-show="page.totalSize>10" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+        :current-page.sync="page.pageNumber"
+        :page-sizes="[10,20,30,40,50]" :page-size="page.pageSize"
+        layout="total, sizes, prev, pager, next, jumper" :total="page.totalSize"
+        style="margin:auto auto;">
+        </el-pagination>
+      </div>
     </div>
 </template>
 
 <script>
 import api from "../../api";
+import submitMovie from "../submitMovie/submitMovie.vue";
 export default {
   props: ["searchText"],
+  components:{
+    "submit-movie": submitMovie
+  },
   data() {
     return {
       bangumis: "",
@@ -33,10 +51,23 @@ export default {
       bgUrl: "",
       index: 0,
       showId: [],
-      showTimer: null
+      showTimer: null,
+      resultStyle:{
+        'min-height':'900px'
+      },
+      showSubmitBox: false
     };
   },
   methods: {
+    closeSubmitMvBox() {
+      this.showSubmitBox = false;
+    },
+    reloadMvInfo() {
+      this.$message({
+        message: "提交成功，审核通过后即可选择您的番剧信息。",
+        type: "success"
+      });
+    },
     changeBgUrl(url) {
       this.bgUrl = url === "" ? "../../static/img/1.jpg" : url;
     },
@@ -130,11 +161,17 @@ export default {
   created() {
     console.log(this.searchText);
     this.searchBangumis(this.searchText);
+  },
+  beforeDestroy(){
+    this.$emit('toIndex');
   }
 };
 </script>
 
 <style>
+.el-pagination__total{
+  color: black;
+}
 .run-animation2 {
   animation: show 0.8s linear 0s 1 normal;
 }
@@ -152,10 +189,16 @@ export default {
   }
 }
 .page-container {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column;
   width: 100% !important;
   height: 80px !important;
   background: none !important;
+  margin-top: -130px;
+}
+.searchResultBg{
+  position: relative;
+  z-index: -1;
 }
 .searchResultBgBox {
   position: fixed;
@@ -185,9 +228,14 @@ export default {
   flex-direction: column;
 }
 .searchResultBox {
-  width: 1600px;
+  width: 1000px;
   margin: 8% auto;
   z-index: 10;
+}
+.sr-submit-link {
+  color: #9a656e;
+  cursor: pointer;
+  text-decoration: underline;
 }
 .searchResultItem {
   opacity: 0.8;
@@ -225,5 +273,26 @@ export default {
   margin-top: 0;
   height: 25px;
   line-height: 25px;
+}
+.submitMovieInBox {
+  margin: auto auto;
+}
+.submitMovieBox {
+  background: rgba(0, 0, 0, 0.37);
+  height: 960px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 60px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+.submitMvBoxTran-enter-active,
+.submitMvBoxTran-leave-active {
+  transition: opacity 0.5s;
+}
+.submitMvBoxTran-enter, .submitMvBoxTran-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

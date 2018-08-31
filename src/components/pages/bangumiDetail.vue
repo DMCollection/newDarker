@@ -91,7 +91,7 @@ export default {
     console.log("bid:", bid);
     console.log("bangumi:", bangumi);
     if (bid) {
-      this.bid = bid;
+      this.bid = parseInt(bid);
       this.initBangumi(bid);
       this.initEpisodes(bid);
     } else {
@@ -216,9 +216,7 @@ export default {
   text-decoration: none;
 }
 .comment-container {
-  z-index: 100;
-  position: absolute;
-  top: 650px;
+  margin-top: 120px;
   width: 100%;
 }
 </style>

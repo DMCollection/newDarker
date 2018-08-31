@@ -45,7 +45,7 @@
                 :item-count=pageSize
                 :item-height=120
                 :item-spacing=15
-                :scroll-hight=540
+                :scroll-hight=630
                 :scroll-width=850
                 @nextPage="nextPage"
                 class="scroll">
@@ -347,10 +347,11 @@ export default {
   height: 90px !important;
 }
 .lastItemMenu {
-  margin-top: -165px !important;
+  margin: -110px auto !important;
 }
-.submitMvBoxTran-enter-active, .submitMvBoxTran-leave-active {
-  transition: opacity .5s;
+.submitMvBoxTran-enter-active,
+.submitMvBoxTran-leave-active {
+  transition: opacity 0.5s;
 }
 .submitMvBoxTran-enter, .submitMvBoxTran-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
@@ -434,7 +435,7 @@ export default {
 .scroll {
   margin: auto 18px;
 }
-input {
+.searchMvBox input {
   height: 22px;
   width: 60%;
   border-radius: 4px;
@@ -444,11 +445,11 @@ input {
   transition: all 0.2s;
   margin: auto 0;
 }
-input:hover {
+.searchMvBox input:hover {
   border: 1px solid white;
   box-shadow: 0 0 1px white;
 }
-input:focus {
+.searchMvBox input:focus {
   border: 1px solid rgb(100, 149, 237);
   box-shadow: 0 0 1px rgb(100, 149, 237);
 }
@@ -536,7 +537,7 @@ input:focus {
   color: white;
   font-size: 13px;
 }
-.mvToolTitle img{
+.mvToolTitle img {
   width: 12px;
   height: 12px;
   margin: auto 2px;
@@ -603,12 +604,12 @@ input:focus {
 }
 .submitMovieBox {
   background: rgba(0, 0, 0, 0.37);
-  height: 814px;
+  height: 960px;
   width: 100%;
   position: absolute;
   left: 0;
   top: 0px;
-  z-index: 300;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
 }

@@ -1,7 +1,7 @@
 <template>
     <div class="forgetBox">
         <div class="nowPath">
-            <p class="nowPathItem1">登陆</p>
+            <p class="nowPathItem1" @click="backToLogin">登陆</p>
             <p class="nowPathTo">〉</p>
             <p class="nowPathItem2">忘记密码</p>
         </div>
@@ -201,6 +201,9 @@ export default {
       clearInterval(this.timer);
       this.timer = null;
       this.$router.push({ name: "index" });
+    },
+    backToLogin(){
+      this.$router.push({ name: "login" });
     }
   }
 };
@@ -222,6 +225,7 @@ export default {
 .forgetBox {
   display: flex;
   flex-direction: column;
+  height: 845px;
 }
 .nowPath {
   display: flex;
@@ -286,6 +290,7 @@ export default {
   padding-right: 10px;
   transition: border 0.2s;
   outline: none;
+  font-family: 'Leckerli One', cursive;
 }
 .forgetBox input:hover {
   border: 1px solid white;
@@ -324,6 +329,7 @@ export default {
 }
 .forgetStep2 input {
   margin: -10px auto;
+  font-family: 'Leckerli One', cursive;
 }
 .errorTip {
   color: red;
@@ -355,6 +361,7 @@ export default {
 .mailCodeBox input {
   width: 180px;
   margin: 10px 0;
+  font-family: 'Leckerli One', cursive;
 }
 .getCodeGreyBtn {
   height: 30px;

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import index from '@/components/pages/index'
 import searchResult from '@/components/pages/searchResult'
+import onlineList from '@/components/pages/onlineList'
 import movieInfo from '@/components/pages/movieInfo'
 import watch from '@/components/pages/watchPage'
 import login from '@/components/pages/login'
@@ -14,10 +15,13 @@ import test from '@/components/pages/test'
 import bangumiDetail from '@/components/pages/bangumiDetail'
 import realAnnounce from '@/components/pages/realAnnounce'
 import userProfile from '@/components/pages/userProfile'
+import contactUs from '@/components/pages/contactUs'
+import aboutUs from '@/components/pages/aboutUs'
+import blank from "@/components/pages/blank"
 
 Vue.use(Router)
 
-export default new Router({
+const router= new Router({
   routes: [
     {
       path: '/',
@@ -28,6 +32,11 @@ export default new Router({
       path: '/searchResult',
       name: 'searchResult',
       component: searchResult
+    },
+    {
+      path:'/onlineList',
+      name:'onlineList',
+      component:onlineList
     },
     {
       path: '/movieInfo',
@@ -98,6 +107,23 @@ export default new Router({
       path: '/user/:uid',
       name: 'user',
       component: userProfile
+    },
+    {
+      path: '/contactUs',
+      name: 'contactUs',
+      component: contactUs
+    },
+    {
+      path: '/aboutUs',
+      name: 'aboutUs',
+      component: aboutUs
+    },
+    {
+      path: '/blank',
+      name: 'blank',
+      component: blank
     }
   ]
-})
+});
+
+export default router;

@@ -19,15 +19,16 @@
           <img src="../../../static/img/righter.png" class="righterImg">
         </div>
         <div class="carouselBox">
-            <img :src="bgImgUrl[bgImgIndex].thumb" class="carousel run-animation" id='carousel'>
+            <img :src="bgImgUrl[bgImgIndex].imageUrl" class="carousel run-animation" id='carousel'>
         </div>
         <div class="base6"></div>
         <div class="welcome">
             <div class="textBox" @mouseover="startFn" @mouseout="endFn">
-                <h1 :data-start="start" :data-startB="startB" class="text" data-text="Welcome to Darker!!">Welcome to Darker!!</h1>
+                <h1 :data-start="start" :data-startB="startB" style="font-weight: bold;" class="text" :data-text="welcome">{{welcome}}</h1>
             </div>
-            <div class="sysMsgBox" @click="jmpAnnounce" style="cursor:pointer">
-                <marquee class="sysMsg">{{announceInfo.title}}</marquee>
+            <div class="sysMsgBox" style="cursor:pointer">
+                <marquee class="sysMsg" @click="jmpAnnounce">{{announceInfo.title}}</marquee>
+                <p @click="jmpOnlineList">在线人数: {{online}}<el-badge value="hot" class="onlineBadge"></el-badge></p>
             </div>
             <div class="barrageBox" v-if="false">
                 <input class="barrageInput" placeholder="在这里输入弹幕" style="width:140px; padding-left:10px;padding-right:10px;">
@@ -37,9 +38,26 @@
         <div class="hotImgBox">
             <div class="hotImgInBox">
                 <div class="hotImgNow" @click="jmpNowBangumi" :style="{'margin-left':hotImgNowLoc,width:imgWidth}"></div>
-                <img v-for="(url,index) in bgImgUrl" :src="url.thumb" :style="[{width:imgWidth}]" @click="jmpToBangumi(url)" class="hotImgItemBox" @mouseover="userChangeHotImgNow(index)" :key="url.bangumiId">
+                <img v-for="(url,index) in bgImgUrl" :src="url.imageUrl" :style="[{width:imgWidth}]" @click="jmpToBangumi(url)" class="hotImgItemBox" @mouseover="userChangeHotImgNow(index)" :key="url.bangumiId">
             </div>
         </div>
+      <div class="indexFooter">
+        <div class="inderFooter2">
+          <div class="footerAbout">
+            <a target="_blank" class="footerItem" href="#/aboutUs">关于我们</a>
+            <a target="_blank" class="footerItem" href="#/contactUs" @mouseover="infoText='联系我们'" @mouseout="infoText='用爱发电'">{{infoText}}</a>
+            <a target="_blank" class="footerItem" href="https://t.me/joinchat/D6RlYg6geGuiS3WP_ag5zg"><img style="width:20px;height:15px;" src="../../../static/img/logo.png"><p>加入我们</p></a>
+          </div>
+          <div class="authorInfo">
+            <p>Crafted with</p>
+            <p style="color:red;font-size:18px;">❤</p>
+            <p>by Darkers ©2018 Darker.</p>
+          </div>
+          <div class="indexFooterInBox">
+            <a target="_blank" :href="GLOBAL.DOInviteLink" class="footerItem"><img class="elementIcon" :src="GLOBAL.imgURL+'/FlgYbSr.png'"></a>
+          </div>
+        </div>
+      </div>
     </div>
 </template>
 
@@ -52,12 +70,16 @@ export default {
       startB: false,
       timer: null,
       carouselTimer: null,
-      bgImgUrl: [{thumb:'../../../static/img/1.jpg'}],
+      bgImgUrl: [{imageUrl:'../../../static/img/1.jpg'}],
       bgImgIndex: 0,
       hotImgNowLoc: "0px",
       announceInfo:{},
       imgWidth:'',
       widthNum:0,
+      infoText:'用爱发电',
+      welcome:'Welcome to darker!!',
+      online:'',
+      //welcome:'Welcome to dark!!'
       // notice: "",
       // showNotice: false,
       // lastNoticeId: "",
@@ -81,26 +103,29 @@ export default {
       this.bgImgIndex = index;
       this.hotImgNowLoc = (this.widthNum * this.bgImgIndex).toString() + "%";
       clearInterval(this.carouselTimer);
+      this.carouselTimer=null;
       let carousel = document.getElementById("carousel");
       carousel.classList.remove("run-animation");
       carousel.offsetLeft;
       carousel.classList.add("run-animation");
-      var that = this;
-      this.carouselTimer = setInterval(function() {
-        that.bgImgIndex++;
-        if (that.bgImgIndex == that.bgImgUrl.length) that.bgImgIndex = 0;
-        that.hotImgNowLoc = (that.widthNum * that.bgImgIndex).toString() + "%";
+      this.carouselTimer = setInterval(()=>{
+        this.bgImgIndex++;
+        if (this.bgImgIndex == this.bgImgUrl.length) this.bgImgIndex = 0;
+        this.hotImgNowLoc = (this.widthNum * this.bgImgIndex).toString() + "%";
       }, 5000);
     },
     jmpToBangumi(item){
       console.log(item);
-      window.location.assign('/#/bangumi/'+item.bangumiId);
+      window.location.assign(item.linkUrl);
     },
     jmpNowBangumi(){
-      window.location.assign('/#/bangumi/'+this.bgImgUrl[this.bgImgIndex].bangumiId);
+      window.location.assign(this.bgImgUrl[this.bgImgIndex].linkUrl);
     },
     jmpAnnounce() {
       this.$router.push({ name: "announce" ,params:{id:this.announceInfo.id} });
+    },
+    jmpOnlineList(){
+      this.$router.push({ name: "onlineList"});
     },
     async initAnnounce(){
       let resData=(await api.getNotice()).data;
@@ -117,29 +142,103 @@ export default {
         this.imgWidth=(100/this.bgImgUrl.length).toString()+'%';
         this.widthNum=100/this.bgImgUrl.length;
       }
+    },
+    async initWelcome(){
+      let res=(await api.getWelcome()).data;
+      console.log('欢迎标语',res);
+      if(res.code==0||res.data=="") return res.data;
+      else return 'Welcome to darker!!';
+    },
+    async initIndexInfo(){
+      let res=(await api.getIndex()).data;
+      console.log('初始化首页新接口',res);
+      if(res.code==0){
+        this.online=res.data.online_watch_count;
+        (res.data.index_sentence!=''||!res.data.index_sentence)?this.welcome=res.data.index_sentence:this.welcome;
+        this.bgImgUrl=res.data.index_recommend;
+        this.imgWidth=(100/this.bgImgUrl.length).toString()+'%';
+        this.widthNum=100/this.bgImgUrl.length;
+      }
     }
   },
-  async created() {
-    await this.initCommend();
+  created() {
     //在这里获取首页推荐的数据
-    var that = this;
-    this.carouselTimer = setInterval(function() {
-      that.bgImgIndex++;
-      if (that.bgImgIndex == that.bgImgUrl.length) that.bgImgIndex = 0;
-      that.hotImgNowLoc = (that.widthNum * that.bgImgIndex).toString() + "%";
-    }, 5000);
-    await this.initAnnounce();
+    this.initIndexInfo().then(()=>{
+      this.carouselTimer = setInterval(()=> {
+        this.bgImgIndex++;
+        if (this.bgImgIndex == this.bgImgUrl.length) this.bgImgIndex = 0;
+        this.hotImgNowLoc = (this.widthNum * this.bgImgIndex).toString() + "%";
+      }, 5000);
+    });
+    this.initAnnounce();
+    this.$emit('toIndex');
   }
 };
 </script>
 
 <style>
+.indexFooter {
+  position: absolute;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  left: 0.5%;
+  width: 99%;
+}
+.inderFooter2 {
+  display: flex;
+  flex-direction: row;
+  margin: auto auto;
+}
+.footerAbout {
+  display: flex;
+  flex-direction: row;
+}
+.authorInfo {
+  display: flex;
+  flex-direction: row;
+  height: 20px;
+}
+.authorInfo p {
+  height: 20px;
+  margin: auto 3px;
+  line-height: 20px;
+}
+.indexFooterInBox {
+  display: flex;
+  flex-direction: row;
+  margin: auto auto;
+}
+.footerItem {
+  margin: auto 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  height: 20px;
+  text-decoration: none;
+  color: black;
+}
+.footerItem img {
+  height: 20px;
+  width: 20px;
+  margin: auto auto;
+}
+.elementIcon {
+  height: 20px;
+  width: 120px !important;
+}
+.footerItem p {
+  line-height: 20px;
+  height: 20px;
+  margin: auto 5px;
+}
 .carouselBox {
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
   position: absolute;
   z-index: 1;
 }
@@ -172,11 +271,11 @@ export default {
   position: absolute;
   height: 85px;
   width: 50%;
-  margin-left: 25%;
-  margin-top: 280px;
   display: flex;
   flex-direction: column;
   z-index: 1000;
+  top: 340px;
+  left: 25.5%;
   /*border-left: 10px solid black;*/
   /*border-right: 10px solid black;*/
 }
@@ -185,18 +284,21 @@ export default {
   height: 90%;
   width: 100%;
   top: 20%;
+  margin: auto auto;
 }
 .text {
   /*background: rgb(228, 166, 8);*/
   background: rgb(42, 83, 103);
   opacity: 0.8;
   position: absolute;
-  height: 100%;
+  height: 90px;
   width: 100%;
-  font-size: 70px;
-  top: -45px;
+  font-size: 50px;
+  line-height: 90px;
+  top: -31px;
   color: rgb(0, 0, 0);
-  clip: rect(0px, 900px, 80px, 0px);
+  clip: rect(0px, 1000px, 80px, 0px);
+  font-weight: bold;
 }
 [data-start="true"] {
   animation: textShiningA1 2s linear 0s 1 normal;
@@ -210,8 +312,9 @@ export default {
   position: absolute;
   width: 100%;
   background: rgba(0, 0, 0, 0);
-  clip: rect(0px, 900px, 80px, 0px);
+  clip: rect(0px, 1000px, 80px, 0px);
   opacity: 0.6;
+  font-weight: bold;
 }
 [data-start="true"].text:before {
   top: -1px;
@@ -227,18 +330,18 @@ export default {
 }
 @keyframes textShiningA1 {
   0% {
-    clip: rect(15px, 900px, 25px, 0px);
+    clip: rect(15px, 1000px, 25px, 0px);
     opacity: 1;
   }
   70% {
-    clip: rect(60px, 900px, 70px, 0px);
+    clip: rect(60px, 1000px, 70px, 0px);
     opacity: 1;
   }
   71% {
     opacity: 0;
   }
   77% {
-    clip: rect(0px, 900px, 85px, 0px);
+    clip: rect(0px, 1000px, 85px, 0px);
     opacity: 1;
   }
   85% {
@@ -261,7 +364,7 @@ export default {
   }
   37% {
     opacity: 0;
-    color:black;
+    color: black;
   }
   39% {
     opacity: 1;
@@ -274,34 +377,34 @@ export default {
     opacity: 1;
   }
   14% {
-    clip: rect(10px, 900px, 20px, 0px);
+    clip: rect(10px, 1000px, 20px, 0px);
   }
   15% {
-    clip: rect(10px, 900px, 20px, 0px);
+    clip: rect(10px, 1000px, 20px, 0px);
   }
   35% {
-    clip: rect(25.75px, 900px, 35.75px, 0px);
+    clip: rect(25.75px, 1000px, 35.75px, 0px);
   }
   37% {
-    clip: rect(0px, 900px, 80px, 0px);
+    clip: rect(0px, 1000px, 80px, 0px);
   }
   39% {
-    clip: rect(27.55px, 900px, 37.55px, 0px);
+    clip: rect(27.55px, 1000px, 37.55px, 0px);
   }
   65% {
-    clip: rect(35.75px, 900px, 42.25px, 0px);
+    clip: rect(35.75px, 1000px, 42.25px, 0px);
     text-shadow: 2px 2px #35ff1a;
   }
   67% {
-    clip: rect(27.85px, 900px, 43.55px);
+    clip: rect(27.85px, 1000px, 43.55px);
     text-shadow: 80px 80px #35ff1a;
   }
   69% {
-    clip: rect(37.95px, 900px, 44.85px, 0px);
+    clip: rect(37.95px, 1000px, 44.85px, 0px);
     text-shadow: 2px 2px #35ff1a;
   }
   100% {
-    clip: rect(55px, 900px, 65px, 0px);
+    clip: rect(55px, 1000px, 65px, 0px);
     opacity: 1;
   }
 }
@@ -311,52 +414,71 @@ export default {
     opacity: 1;
   }
   14% {
-    clip: rect(12px, 900px, 25px, 0px);
+    clip: rect(12px, 1000px, 25px, 0px);
   }
   15% {
-    clip: rect(12px, 900px, 25px, 0px);
+    clip: rect(12px, 1000px, 25px, 0px);
   }
   35% {
-    clip: rect(25.75px, 900px, 35.75px, 0px);
+    clip: rect(25.75px, 1000px, 35.75px, 0px);
   }
   37% {
-    clip: rect(0px, 900px, 80px, 0px);
+    clip: rect(0px, 1000px, 80px, 0px);
   }
   39% {
-    clip: rect(27.55px, 900px, 37.55px, 0px);
+    clip: rect(27.55px, 1000px, 37.55px, 0px);
   }
   65% {
-    clip: rect(35.75px, 900px, 42.25px, 0px);
+    clip: rect(35.75px, 1000px, 42.25px, 0px);
     text-shadow: -2px -2px #00a7e0;
   }
   67% {
-    clip: rect(36.85px, 900px, 52.55px);
+    clip: rect(36.85px, 1000px, 52.55px);
     text-shadow: -80px -80px #00a7e0;
   }
   69% {
-    clip: rect(37.95px, 900px, 44.85px, 0px);
+    clip: rect(37.95px, 1000px, 44.85px, 0px);
     text-shadow: -2px -2px #00a7e0;
   }
   100% {
-    clip: rect(57px, 900px, 70px, 0px);
+    clip: rect(57px, 1000px, 70px, 0px);
     opacity: 1;
   }
 }
 .sysMsgBox {
   position: absolute;
   top: -13px;
-    /*background: rgb(228, 166, 8);*/
+  /*background: rgb(228, 166, 8);*/
   background: rgb(3, 4, 4);
   opacity: 0.9;
   height: 30px;
   width: 100%;
   border-bottom: 3px solid gray;
+  display: flex;
+  flex-direction: row;
+}
+.sysMsgBox p{
+  color: wheat;
+  margin: auto auto;
+  text-align: center;
+  width: 20%;
+  height: 30px;
+  line-height: 30px;
+  font-size: 15px;
+  font-weight: bold;
+  border-left: 2px solid grey;
+  position: relative;
+}
+.onlineBadge{
+  margin: 5px 5px;
+  position: absolute;
 }
 .sysMsg {
   line-height: 30px;
   color: #c19e33;
-  width: 90%;
+  width: 80%;
   font-weight: bold;
+  margin: auto auto;
 }
 .hotImgBox {
   background: #00a7e0;
@@ -366,7 +488,7 @@ export default {
   height: 10%;
   width: 50%;
   /*绝对布局的居中法*/
-  top: 435px;
+  top: 440px;
   left: 25.4%;
   display: flex;
   flex-direction: row;
@@ -379,13 +501,13 @@ export default {
   flex-direction: row;
   margin: auto auto;
 }
-.hotImgItemBox{
+.hotImgItemBox {
   cursor: pointer;
 }
 .hotImgInBox img {
   height: 100%;
   width: inherit;
-    /*
+  /*
     置于a底下
     position: relative;
     z-index: -1;
@@ -426,7 +548,7 @@ export default {
   width: 100px;
   height: 30px;
 }
-.footerImgBox{
+.footerImgBox {
   position: absolute;
   z-index: 3;
   width: 100%;
@@ -437,28 +559,39 @@ export default {
   flex-direction: column;
   overflow: hidden;
 }
-.footerImg{
+.footerImg {
   margin: auto auto;
   margin-bottom: 0;
   width: 100%;
   height: 65px;
-  background-image: url("../../../static/img/wave3.png");
+  background-image: url("../../../static/img/wave1.png");
   background-position: 0 0;
   animation: footerMv 10s infinite linear;
 }
 @keyframes footerMv {
-  0%{background-position: 0 0;}
-  100%{background-position: 130% 0;}
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 130% 0;
+  }
 }
-.footerImg2{
+.footerImg2 {
   margin: auto auto;
   margin-bottom: 0;
   width: 100%;
   height: 70px;
-  background-image: url("../../../static/img/wave4.png");
-  animation: footerMv 20s infinite .2s linear;
+  background-image: url("../../../static/img/wave2.png");
+  animation: footerMv 20s infinite 0.2s linear;
+  display: flex;
+  flex-direction: column;
 }
-.righterImgBox{
+.footerImg2 p {
+  margin: auto auto;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+.righterImgBox {
   position: absolute;
   z-index: 2;
   width: 100%;
@@ -469,14 +602,14 @@ export default {
   flex-direction: column;
   overflow: hidden;
 }
-.righterImg{
+.righterImg {
   margin: auto auto;
   margin-right: 0;
   width: 100px;
-/*.notify {*/
+  /*.notify {*/
   /*display: inline-block;*/
-/*}*/
-/*.notify .content {*/
+  /*}*/
+  /*.notify .content {*/
   /*display: inline-block;*/
   /*border: 1px solid #f8dfaa;*/
   /*width: 600px;*/
@@ -486,25 +619,25 @@ export default {
   /*line-height: 30px;*/
   /*text-align: left;*/
   /*border-radius: 4px;*/
-/*}*/
-/*.notify .content a:hover {*/
+  /*}*/
+  /*.notify .content a:hover {*/
   /*cursor: pointer;*/
-/*}*/
-/*.notify-bell {*/
+  /*}*/
+  /*.notify-bell {*/
   /*left: 10px;*/
   /*top: 6px;*/
   /*position: absolute;*/
-/*}*/
-/*.notify-close {*/
+  /*}*/
+  /*.notify-close {*/
   /*right: 10px;*/
   /*top: 6px;*/
   /*position: absolute;*/
-/*}*/
-/*.notify-link {*/
+  /*}*/
+  /*.notify-link {*/
   /*margin-left: 35px;*/
   /*font-size: 14px;*/
 }
-.cloudBox{
+.cloudBox {
   position: absolute;
   z-index: 3;
   width: 100%;
@@ -515,7 +648,7 @@ export default {
   flex-direction: column;
   overflow: hidden;
 }
-.cloud1{
+.cloud1 {
   margin: auto auto;
   margin-right: -180;
   margin-bottom: 180px;
@@ -526,11 +659,18 @@ export default {
   animation: cloudMv 20s infinite linear;
 }
 @keyframes cloudMv {
-  0%{margin-right: -180px;}
-  99%{margin-right: 1600px;opacity: 0;}
-  100%{opacity: 0;}
+  0% {
+    margin-right: -180px;
+  }
+  99% {
+    margin-right: 1600px;
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
-.cloud2{
+.cloud2 {
   margin: auto auto;
   margin-right: -180px;
   margin-bottom: 650px;
@@ -540,7 +680,7 @@ export default {
   background-size: cover;
   animation: cloudMv 25s infinite 7s linear;
 }
-.cloud3{
+.cloud3 {
   margin: auto auto;
   margin-right: -100px;
   margin-bottom: 550px;
@@ -551,8 +691,15 @@ export default {
   animation: cloudMv2 30s infinite 15s linear;
 }
 @keyframes cloudMv2 {
-  0%{margin-right: -100px;}
-  99%{margin-right: 1600px;opacity: 0;}
-  100%{opacity: 0;}
+  0% {
+    margin-right: -100px;
+  }
+  99% {
+    margin-right: 1600px;
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 </style>
