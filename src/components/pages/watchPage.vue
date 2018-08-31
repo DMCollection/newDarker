@@ -165,9 +165,8 @@ export default {
   watch: {
     $route(to, from) {
       console.log("to: ", to + " from: ", from);
-      this.resetAllData().then(()=>{
-        this.initDp();
-      });
+      this.resetAllData();
+      setTimeout(()=>{this.initDp()});
     },
     videoInfo() {
       // if (this.bugTmp > 1) this.initDp();
@@ -177,6 +176,7 @@ export default {
           ? "../../../static/img/1.jpg"
           : this.videoInfo.thumb;
       clearInterval(this.webSocketInterval);
+      if(this.ws)this.ws.close();
       this.webSocketInterval=null;
       this.initWebsocket(this.videoInfo.episodeId);
     },
@@ -549,6 +549,7 @@ export default {
     console.log("watchPage created!!!");
   },
   beforeDestroy(){
+    if(this.ws) this.ws.close();
     clearInterval(this.webSocketInterval);
     this.webSocketInterval=null;
   }
@@ -973,5 +974,6 @@ export default {
   rgb(0, 0, 0) 0px 1px 1px,
   rgb(0, 0, 0) 0px -1px 1px,
   rgb(0, 0, 0) -1px 0px 1px;
+  animation: danmaku 9s linear !important;
 }
 </style>
