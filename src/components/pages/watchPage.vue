@@ -166,9 +166,7 @@ export default {
     $route(to, from) {
       console.log("to: ", to + " from: ", from);
       this.resetAllData();
-      setTimeout(() => {
-        this.initDp();
-      },1);
+      setTimeout(()=>{this.initDp()});
     },
     videoInfo() {
       // if (this.bugTmp > 1) this.initDp();
@@ -370,10 +368,7 @@ export default {
           setTimeout(() => {
             this.$notify({
               title: "识别成功",
-              message:
-              this.videoInfo.bangumiName +
-              " " +
-              this.videoInfo.episodeIndex,
+              message: this.bangumiName + " " + this.episodeIndex,
               type: "success"
             });
           }, 800);
