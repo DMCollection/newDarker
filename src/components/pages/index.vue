@@ -37,8 +37,12 @@
         </div>
         <div class="hotImgBox">
             <div class="hotImgInBox">
-                <div class="hotImgNow" @click="jmpNowBangumi" :style="{'margin-left':hotImgNowLoc,width:imgWidth}"></div>
-                <img v-for="(url,index) in bgImgUrl" :src="url.imageUrl" :style="[{width:imgWidth}]" @click="jmpToBangumi(url)" class="hotImgItemBox" @mouseover="userChangeHotImgNow(index)" :key="url.bangumiId">
+                <div class="hotImgNow" @click="jmpNowBangumi" @mouseover="showImgTitle=true" @mouseout="showImgTitle=false" :style="{'margin-left':hotImgNowLoc,width:imgWidth}"></div>
+                <div v-for="(url,index) in bgImgUrl" :style="[{width:imgWidth}]" @click="jmpToBangumi(url)" class="hotImgItemBox" @mouseover="userChangeHotImgNow(index)" :key="url.bangumiId">
+                  <el-tooltip :content="url.title" placement="bottom" effect="light" manual="false" :value="(showImgTitle&&bgImgIndex==index)||bgImgIndex==index">
+                    <img :src="url.imageUrl" style="height:97px;width:100%">
+                  </el-tooltip>
+                </div>
             </div>
         </div>
       <div class="indexFooter">
@@ -79,6 +83,7 @@ export default {
       infoText:'用爱发电',
       welcome:'Welcome to darker!!',
       online:'',
+      showImgTitle:false,
       //welcome:'Welcome to dark!!'
       // notice: "",
       // showNotice: false,
