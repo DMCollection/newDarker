@@ -39,7 +39,7 @@
             <div class="hotImgInBox">
                 <div class="hotImgNow" @click="jmpNowBangumi" @mouseover="showImgTitle=true" @mouseout="showImgTitle=false" :style="{'margin-left':hotImgNowLoc,width:imgWidth}"></div>
                 <div v-for="(url,index) in bgImgUrl" :style="[{width:imgWidth}]" @click="jmpToBangumi(url)" class="hotImgItemBox" @mouseover="userChangeHotImgNow(index)" :key="url.bangumiId">
-                  <el-tooltip :content="url.title" placement="bottom" effect="light" manual="false" :value="(showImgTitle&&bgImgIndex==index)||bgImgIndex==index">
+                  <el-tooltip :content="url.title" placement="bottom" effect="dark" manual="false" :value="(showImgTitle&&bgImgIndex==index)||bgImgIndex==index">
                     <img :src="url.imageUrl" style="height:97px;width:100%">
                   </el-tooltip>
                 </div>
